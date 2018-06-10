@@ -1,4 +1,5 @@
 type InventoryId = InventoryId of string
+open System.Runtime.InteropServices.ComTypes
 
 module InventoryId =
     let tryCreate (id:string) =
@@ -48,4 +49,21 @@ module StockItem =
         | Some id, Some cost, Some rate ->
             Some (create id cost rate)
         | _, _, _ ->
-            None 
+            None
+
+
+type DaysOfInventory = DaysOfInventory of float
+
+module DaysOfInventory =
+    let tryCreate daysOfInventory =
+        if daysOfInventory > 0. then
+            Some (DaysOfInventory daysOfInventory)
+        else
+            None        
+
+module Replenishment =
+    let purchaseQuantity doiTarget (stockItem:StockItem) =
+        let quantity (DaysOfInventory doi) (SalesRate rate) =
+            doi * rate
+
+        quantity doiTarget stockItem.SalesRate        

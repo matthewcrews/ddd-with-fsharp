@@ -145,22 +145,14 @@
 
 ```csharp
 public class StockItem {
-    public string InventoryId { get; set; }
-    public decimal UnitCost { get; set; }
-    public float SalesRate { get; set; }
-}
+    public string InventoryId { get; }
+    public decimal UnitCost { get; }
+    public float SalesRate { get; }
 
-public static class Replenishment {
-    public static float PurchaseQuantity(float targetDaysOfInventory, StockItem stockItem){
-        var purchaseQuantity = targetDaysOfInventory * stockItem.SalesRate;
-
-        return purchaseQuantity;
-    }
-
-    public static float PurchaseValue(float purchaseQuantity, StockItem stockItem){
-        var purchaseValue = purchaseQuantity * stockItem.UnitCost;
-
-        return purchaseValue;
+    public StockItem(string inventoryId, decimal unitCost, float salesRate){
+        InventoryId = inventoryId;
+        UnitCost = unitCost;
+        SalesRate = salesRate;
     }
 }
 ```
@@ -186,7 +178,6 @@ Question
 
 ### InventoryId Questions
 
-Questions for the Domain Expert:  
 Q: What are the valid values for an `InventoryId`?  
 A: Well, it's always letters and numbers.  
 Q: Okay, can it be just a single letter?  
@@ -215,11 +206,11 @@ module InventoryId =
 
 Q: Do you ever have \$0.0 cost items?  
 A: No, those would not be considered StockItems. We would call those Gift With Purchase or Samples. We resupply those using a different managment system.  
-Q: What is the most highest cost item you would ever expect to see?  
+Q: What is the highest cost item you would ever expect to see?  
 A: Oh, we have had items up to $1,000  
-Q: If an item came in with a cost over say $2,000, would you want a warning of some kind?
+Q: If an item came in with a cost over say $2,000, would you want a warning of some kind?  
 A: Well, I don't need an immediate warning but we would probably need a report to find those instances?  
-Q: For the sake of this analysis, should I just ignore items with that high of cost?  
+Q: For the sake of this analysis, should I exclude items with that high of cost?  
 A: Yes, we would not want to make a purchasing recommendation with an errant cost in the system  
 
 ---
@@ -282,6 +273,28 @@ module StockItem =
         | _, _, _ ->
             None
 ```
+
+---
+
+### Replenishment Calculations
+
+```csharp
+public static class Replenishment {
+    public static float PurchaseQuantity(float targetDaysOfInventory, StockItem stockItem){
+        var purchaseQuantity = targetDaysOfInventory * stockItem.SalesRate;
+
+        return purchaseQuantity;
+    }
+
+    public static float PurchaseValue(float purchaseQuantity, StockItem stockItem){
+        var purchaseValue = purchaseQuantity * stockItem.UnitCost;
+
+        return purchaseValue;
+    }
+}
+```
+
+---
 
 ### Updated Requirement
 
