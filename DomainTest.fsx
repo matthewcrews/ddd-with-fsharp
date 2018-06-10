@@ -67,3 +67,8 @@ module Replenishment =
             doi * rate
 
         quantity doiTarget stockItem.SalesRate        
+
+type ProfitCategory = 
+    | Cat1
+    | Cat2
+    | Cat3    

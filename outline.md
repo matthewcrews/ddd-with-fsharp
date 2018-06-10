@@ -294,6 +294,39 @@ public static class Replenishment {
 }
 ```
 
+Questions:
+
+- What can go wrong here?
+- What happens if numbers are negative?
+
+---
+
+### Days Of Inventory Model
+
+```fsharp
+type DaysOfInventory = DaysOfInventory of float
+
+module DaysOfInventory =
+    let tryCreate daysOfInventory =
+        if daysOfInventory > 0. then
+            Some (DaysOfInventory daysOfInventory)
+        else
+            None 
+```
+
+---
+
+### Replenishment Module
+
+```fsharp
+module Replenishment =
+    let purchaseQuantity doiTarget (stockItem:StockItem) =
+        let quantity (DaysOfInventory doi) (SalesRate rate) =
+            doi * rate
+
+        quantity doiTarget stockItem.SalesRate  
+```
+
 ---
 
 ### Updated Requirement
@@ -303,6 +336,69 @@ public static class Replenishment {
 New Term for the Ubiquitous Language  
 Profit Category: The profit grouping that a Stock Item belongs to
 
+---
+
+### Profit Category Model
+
+```fsharp
+type ProfitCategory =
+    | Cat1
+    | Cat2
+    | Cat3
+
+type StockItem = {
+    InventoryId : InventoryId
+    UnitCost : UnitCost
+    SalesRate : SalesRate
+    ProfitCategory : ProfitCategory
+}
+
+```
+
+---
+
+### Replenishment Module : Take 2
+
+```fsharp
+module Replenishment =
+    let purchaseQuantity1 (DaysOfInventory doiTarget) (stockItem:StockItem) =
+        let (SalesRate salesRate) = stockItem.SalesRate
+        match stockItem.ProfitCategory with
+        | Cat1 -> (doiTarget + 10.0) * salesRate
+        | Cat2 -> doiTarget * salesRate  
+        | Cat3 -> (doiTarget - 15.0) * salesRate
+```
+
+Question
+
+- What possible error have we introduced?
+- How do we avoid doing this? (Don't work with base types. Work with domain types as much as possible.)
+- How do we fix it?
+
+---
+
+### Updated Days Of Inventory Model
+
+```fsharp
+type DaysOfInventory = DaysOfInventory of float with
+    static member (+) (DaysOfInventory d1, DaysOfInventory d2) =
+        DaysOfInventory (d1 + d2)
+
+    static member (-) (DaysOfInventory d1, DaysOfInventory d2) =
+        if d1 > d2 then
+            DaysOfInventory (d1 - d2)
+            |> Some
+        else
+            None
+
+    static member (*) (DaysOfInventory d, SalesRate s) =
+        ItemQuantity (d * s)
+```
+
+---
+
+### Updated 
+
 ## Resources
 
 ### Books
@@ -311,7 +407,7 @@ Profit Category: The profit grouping that a Stock Item belongs to
 "Domain Driven Design Made Functional" by Scott Wlaschin  
 "Get Programming with F#" by Isaac Abraham
 
-### Website
+### Websites
 
 fsharpforfunandprofit.com by Scott Wlaschin  
 fsharp.org
