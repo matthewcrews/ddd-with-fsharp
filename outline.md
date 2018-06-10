@@ -122,12 +122,58 @@
 - Days of Inventory: The number of days which an item is in stock
 - Sales Rate: The daily rate which we have or expect to make sales
 
+---
+
+### Stock Item Model
+
+```csharp
+public class StockItem {
+    public string InventoryId { get; set; }
+    public decimal UnitCost { get; set; }
+    public float SalesRate { get; set; }
+}
+```
+
+Question
+
+- Is any string an acceptable `InventoryId`?
+- Can a `UnitCost` really take on any value a `decimal` can?
+- Do we ever expect to see a `SalesRate` less than `0.0`?
+- What can we do to restrict the domains of these values?
+
+---
+
+### Stock Item Model
+
+- For proper DDD we would like to restrict the values of `InventoryId`, `UnitCost`, and `SalesRate`. Let's look at doing this in F#
+
+Questions for the Domain Expert:
+Q: What are the valid values for an `InventoryId`?
+A: Well, it's always letters and numbers.
+Q: Okay, can it be just a single letter?
+A: No, it is always at least 5
+Q: Can it be an infinite number of letters or numbers?
+A: Oh, no it is never more than 20
+
+```fsharp
+type InventoryId = InventoryId of string
+
+module InventoryId =
+    let tryCreate (id:string) =
+        if id.Length > 5 && id.Length <= 50 then
+            Some (InventoryId id)
+        else
+            None
+```
+
+---
+
 ### Updated Requirement
 
-> "We want to give a bonus DOI level to items which have a profitability rating above X and a penalty to items which have a profitability below Y." --The Boss
+> "We want to adjust the DOI Target for our StockItems based on their Profit Category. Cat 1 should get a 10 DOI Bonus. Cat 2 should get no bonus. Cat 3 should get a 15 DOI Penalty." --The Boss
  
 New Term for the Ubiquitous Language  
-Profit Ranking: The ranking of the profitability of the Stock Item in our Portfolio
+Profit Category: The profit grouping that a Stock Item belongs to
 
 ## Resources
 
