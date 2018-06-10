@@ -46,7 +46,7 @@
 ### Why should I care?
 
 - By accurately modeling the domain, it is easier to discuss the solution with Domain Experts and Business Users
-- 
+- Helps with refactoring because the domain is more fully represented
 
 ## F# and it's aptness for DDD
 
