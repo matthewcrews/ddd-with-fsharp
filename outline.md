@@ -40,7 +40,7 @@
 - Model: The set of abstractions used to solve problems in the given Domain
 - Ubiquitous Language: The consistent way of describing objects and activities within the Context that is shared with the Developers and Domain Experts (What we have here is a failure to communicate)
 
-> Note: If an object could potentially have two different meaning in the same Context, then the Context may be too broad
+> Note: If an object could potentially have two different meaning in the same Context, then the Context may be too broad. Classic example is Customer.
 
 ---
 
@@ -100,6 +100,7 @@
 - Zero friction for defining many types
 - Type aliases
 - Value based comparison
+- Units of Measure
 - Algebraic type system (more on that later)
 - Robust type inference (not checking)
 - Match statement forces handling of cases in all instances. If you add a new possible state, it will break every match statement that doesn't cover it.
@@ -422,7 +423,11 @@ module Replenishment =
 
 ---
 
-### Updated 
+### DDD Takeaways
+
+- Sometimes 
+
+---
 
 ## Resources
 
