@@ -11,7 +11,7 @@ type UnitCost = UnitCost of decimal
 
 module UnitCost =
     let tryCreate unitCost =
-        if unitCost > 0M then
+        if unitCost > 0M && unitCost < 2000M then
             Some (UnitCost unitCost)
         else
             None

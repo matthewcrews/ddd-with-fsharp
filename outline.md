@@ -77,6 +77,8 @@
 - Great for OO and Procedural Programming
 - Same performance as C#
 
+---
+
 ### What separates Functional from Imperitive Programming?
 
 - Functional Programming is expressions instead of commands
@@ -84,11 +86,14 @@
 - All code returns something, even if that something is `unit` (The closest thing to `void` in F#)
 - Functions are first class citizens and are often parameters to other functions
 
+---
+
 ### Why do I care about Functional Programming?
 
 - If you write SQL, you are a functional programmer
 - If you write LINQ expressions, you are a functional programmer
 
+---
 
 ### So what makes F# great for DDD?
 
@@ -99,13 +104,23 @@
 - Robust type inference (not checking)
 - Match statement forces handling of cases in all instances. If you add a new possible state, it will break every match statement that doesn't cover it.
 
+---
+
 ### What is up with these Algebraic Types?
+
+---
 
 ### Product Types: What we are used to. Tuples and Records
 
+---
+
 ### Sum Types (aka Discrimiated Union): A type which enforces dealing with various sub-types. Vegetable could be a 
 
+---
+
 ## Application to Financial Domain
+
+---
 
 ### The Problem Statement
 
@@ -114,6 +129,8 @@
 - The model needs to be easy to maintain since strategies evolve
 - Ideally we want to model the restrictions of our domain within the types themselves
 - Relying on a Developer to remember to validate a number will fail (ie: Checking for non-negativity)
+
+---
 
 ### The Domain
 
@@ -124,7 +141,7 @@
 
 ---
 
-### Stock Item Model
+### Naive Stock Item Model
 
 ```csharp
 public class StockItem {
@@ -132,14 +149,32 @@ public class StockItem {
     public decimal UnitCost { get; set; }
     public float SalesRate { get; set; }
 }
+
+public static class Replenishment {
+    public static float PurchaseQuantity(float targetDaysOfInventory, StockItem stockItem){
+        var purchaseQuantity = targetDaysOfInventory * stockItem.SalesRate;
+
+        return purchaseQuantity;
+    }
+
+    public static float PurchaseValue(float purchaseQuantity, StockItem stockItem){
+        var purchaseValue = purchaseQuantity * stockItem.UnitCost;
+
+        return purchaseValue;
+    }
+}
 ```
 
 Question
 
 - Is any string an acceptable `InventoryId`?
+- Can you have a StockItem with no InventoryId?
+- Can you have an InventoryId with infinite length?
 - Can a `UnitCost` really take on any value a `decimal` can?
+- Can you have negative `UnitCost`? No!
 - Do we ever expect to see a `SalesRate` less than `0.0`?
 - What can we do to restrict the domains of these values?
+- What is the worst consequence of this?
 
 ---
 
@@ -147,26 +182,106 @@ Question
 
 - For proper DDD we would like to restrict the values of `InventoryId`, `UnitCost`, and `SalesRate`. Let's look at doing this in F#
 
-Questions for the Domain Expert:
-Q: What are the valid values for an `InventoryId`?
-A: Well, it's always letters and numbers.
-Q: Okay, can it be just a single letter?
-A: No, it is always at least 5
-Q: Can it be an infinite number of letters or numbers?
-A: Oh, no it is never more than 20
+---
+
+### InventoryId Questions
+
+Questions for the Domain Expert:  
+Q: What are the valid values for an `InventoryId`?  
+A: Well, it's always letters and numbers.  
+Q: Okay, can it be just a single letter?  
+A: No, it is always at least 5  
+Q: Can it be an infinite number of letters or numbers?  
+A: Oh, no it is never more than 20  
+
+---
+
+### InventoryId Model
 
 ```fsharp
 type InventoryId = InventoryId of string
 
 module InventoryId =
     let tryCreate (id:string) =
-        if id.Length > 5 && id.Length <= 50 then
+        if id.Length > 5 && id.Length <= 20 then
             Some (InventoryId id)
         else
             None
 ```
 
 ---
+
+### UnitCost Questions
+
+Q: Do you ever have \$0.0 cost items?  
+A: No, those would not be considered StockItems. We would call those Gift With Purchase or Samples. We resupply those using a different managment system.  
+Q: What is the most highest cost item you would ever expect to see?  
+A: Oh, we have had items up to $1,000  
+Q: If an item came in with a cost over say $2,000, would you want a warning of some kind?
+A: Well, I don't need an immediate warning but we would probably need a report to find those instances?  
+Q: For the sake of this analysis, should I just ignore items with that high of cost?  
+A: Yes, we would not want to make a purchasing recommendation with an errant cost in the system  
+
+---
+
+### UnitCost Model
+
+```fsharp
+type UnitCost = UnitCost of decimal
+
+module UnitCost =
+    let tryCreate unitCost =
+        if unitCost > 0M && unitCost < 2000M then
+            Some (UnitCost unitCost)
+        else
+            None
+```
+
+---
+
+### SalesRate Model
+
+```fsharp
+type SalesRate = SalesRate of float
+
+module SalesRate =
+    let tryCreate salesRate =
+        if salesRate >= 0.0 then
+            Some (SalesRate salesRate)
+        else
+            None
+```
+
+---
+
+### StockItem Model
+
+```fsharp
+type StockItem = {
+    InventoryId : InventoryId
+    UnitCost : UnitCost
+    SalesRate : SalesRate
+}
+
+module StockItem =
+    let create inventoryId unitCost salesRate =
+        {
+            InventoryId = inventoryId
+            UnitCost = unitCost
+            SalesRate = salesRate
+        }
+
+    let tryCreate inventoryId unitCost salesRate =
+        let inventoryIdResult = InventoryId.tryCreate inventoryId
+        let unitCostResult = UnitCost.tryCreate unitCost
+        let salesRateResult = SalesRate.tryCreate salesRate
+
+        match inventoryIdResult, unitCostResult, salesRateResult with
+        | Some id, Some cost, Some rate ->
+            Some (create id cost rate)
+        | _, _, _ ->
+            None
+```
 
 ### Updated Requirement
 
