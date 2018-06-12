@@ -71,6 +71,16 @@ module StockItem =
 
 
 type DaysOfInventory = DaysOfInventory of float with
+    static member (+) (DaysOfInventory d1, DaysOfInventory d2) =
+        DaysOfInventory (d1 + d2)
+
+    static member (-) (DaysOfInventory d1, DaysOfInventory d2) =
+        if d1 > d2 then
+            DaysOfInventory (d1 - d2)
+            |> Some
+        else
+            None
+
     static member (*) (DaysOfInventory d, SalesRate s) =
         ItemQuantity (d * s)
 
@@ -82,8 +92,12 @@ module DaysOfInventory =
             None
 
 module Replenishment =
-    let purchaseQuantity (daysOfInventory:DaysOfInventory) (stockItem:StockItem) =
-        daysOfInventory * stockItem.SalesRate
+    let purchaseQuantity (DaysOfInventory doiTarget) (stockItem:StockItem) =
+        let (SalesRate salesRate) = stockItem.SalesRate
+        match stockItem.ProfitCategory with
+        | Cat1 -> ItemQuantity ((doiTarget + 10.0) * salesRate)
+        | Cat2 -> ItemQuantity (doiTarget * salesRate)
+        | Cat3 -> ItemQuantity ((doiTarget - 15.0) * salesRate)
         |> OrderQuantity.ofItemQuantity
 
 

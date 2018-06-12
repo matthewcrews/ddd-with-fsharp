@@ -169,10 +169,10 @@ The term "Domain Driven Design" comes from Eric Evans. It was used in his book o
 
 ### The Domain
 
-**Stock Items:** The items that we sell on Marketplaces. These represent physical units of inventory  
-**Floor Price:** The Lowest Price which we can afford to sell an item for  
+**Stock Item:** The items that we sell on Marketplaces. These represent physical units of inventory  
 **Days of Inventory:** The number of days which we would like to have a Stock Item in stock  
 **Sales Rate:** The daily rate which we have or expect to make sales  
+**Item Quantity:** A count of a particular Stock Item
 **Order Quantity:** The Number of units that we want to purchase  
 
 ![Domain Diagramming](/images/diagram-domain.jpeg)
@@ -250,7 +250,7 @@ Question
 
 ### Stock Item Model
 
-- For proper DDD we would like to restrict the values of `InventoryId`, `UnitCost`, and `SalesRate`. Let's look at doing this in F#
+For proper DDD we would like to restrict the values of `InventoryId`, `UnitCost`, and `SalesRate`. Let's look at doing this in F#
 
 #### InventoryId Questions
 
@@ -280,8 +280,8 @@ module InventoryId =
 
 ### UnitCost Questions
 
-Q: Do you ever have \$0.0 cost items?  
-A: No, those would not be considered StockItems. We would call those Gift With Purchase or Samples. We resupply those using a different management system.  
+Q: Do you ever have $0.0 cost items?  
+A: No, those would not be considered a Stock Item. We would call those Gift With Purchase or Samples. We resupply those using a different management system.  
 Q: What is the highest cost item you would ever expect to see?  
 A: Oh, we have had items up to $1,000  
 Q: If an item came in with a cost over say $2,000, would you want a warning of some kind?  
@@ -356,13 +356,17 @@ module StockItem =
 
 ```csharp
 public static class Replenishment {
-    public static float PurchaseQuantity(float targetDaysOfInventory, StockItem stockItem){
+    public static float PurchaseQuantity(float targetDaysOfInventory, 
+        StockItem stockItem)
+    {
         var purchaseQuantity = targetDaysOfInventory * stockItem.SalesRate;
 
         return purchaseQuantity;
     }
 
-    public static float PurchaseValue(float purchaseQuantity, StockItem stockItem){
+    public static float PurchaseValue(float purchaseQuantity, 
+        StockItem stockItem)
+    {
         var purchaseValue = purchaseQuantity * stockItem.UnitCost;
 
         return purchaseValue;
@@ -405,12 +409,47 @@ module Replenishment =
 
 ---
 
+### Replenishment Module
+
+```fsharp
+module Replenishment =
+    let purchaseQuantity doiTarget (stockItem:StockItem) =
+        let quantity (DaysOfInventory doi) (SalesRate rate) =
+            doi * rate
+
+        quantity doiTarget stockItem.SalesRate  
+```
+
+What do we do if we just want to support the multiplication of `DaysOfInventory` and `SalesRate`?
+
+---
+
+### Adding Operations to DaysOfInventory Model
+
+```fsharp
+type DaysOfInventory = DaysOfInventory of float with
+    static member (*) (DaysOfInventory d, SalesRate s) =
+        ItemQuantity (d * s)
+```
+
+We now update our `purchaseQuantity` function.
+
+```fsharp
+module Replenishment =
+    let purchaseQuantity (daysOfInventory:DaysOfInventory) (stockItem:StockItem) =
+        daysOfInventory * stockItem.SalesRate
+        |> OrderQuantity.ofItemQuantity
+// val purchaseQuantity : DaysOfInventory -> StockItem -> OrderQuantity
+```
+
+---
+
 ### Updated Requirement
 
 > "We want to adjust the DOI Target for our StockItems based on their Profit Category. Cat 1 should get a 10 DOI Bonus. Cat 2 should get no bonus. Cat 3 should get a 15 DOI Penalty." --The Boss
  
 New Term for the Ubiquitous Language  
-Profit Category: The profit grouping that a Stock Item belongs to
+**Profit Category:** The profit grouping that a Stock Item belongs to
 
 ---
 
@@ -437,12 +476,14 @@ type StockItem = {
 
 ```fsharp
 module Replenishment =
-    let purchaseQuantity1 (DaysOfInventory doiTarget) (stockItem:StockItem) =
+    let purchaseQuantity (DaysOfInventory doiTarget) (stockItem:StockItem) =
         let (SalesRate salesRate) = stockItem.SalesRate
         match stockItem.ProfitCategory with
         | Cat1 -> ItemQuantity ((doiTarget + 10.0) * salesRate)
         | Cat2 -> ItemQuantity (doiTarget * salesRate)
         | Cat3 -> ItemQuantity ((doiTarget - 15.0) * salesRate)
+        |> OrderQuantity.ofItemQuantity
+// val purchaseQuantity : DaysOfInventory -> StockItem -> OrderQuantity
 ```
 
 Question
