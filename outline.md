@@ -1,8 +1,8 @@
 # Domain Driven Design with FSharp
 
-## Introduction
-
 ---
+
+## Introduction
 
 ### What we are going to cover
 
@@ -20,6 +20,8 @@
 - Favorite language is whatever solves the problem well (F#, C#, C++, SQL, VBA, whatever)
 - F# is my primary language but I still consider myself novice to Functional Programming
 - I like clear, robust, and elegant code (in that order)
+- Twitter: @McCrews
+- Website: matthewcrews.com
 
 ---
 
@@ -27,7 +29,15 @@
 
 ### Where does it come from?
 
-The term "Domain Driven Design" comes from Eric Evans. It was used in his book of the the same title (citation).
+The term "Domain Driven Design" comes from Eric Evans. It was used in his book of the the same title.
+
+#### The idea is...
+
+- The focus of the project is on the Domain and the Domain Logic
+- The design of the solution should depend on the Domain Model
+- The Domain and Domain Logic are the result of intense collaboration between the Developer and the Domain Expert
+- The implementation for the Domain and Domain Logic is not just code but also documentation of how the process works
+- A Domain Expert should be able to look at the code and verify whether the logic is correct, even if they don't necessarily know the language
 
 > "The purpose of abstraction is not to be vague, but to create a new semantic level in which one can be absolutely precise."
 >> **Edsger Dijkstra**
@@ -38,10 +48,8 @@ The term "Domain Driven Design" comes from Eric Evans. It was used in his book o
 
 - **Context:** The conceptual umbrella that everything falls under
 - **Domain:** Define a clear boundary for what the project or solution is about so that you can say "No" to everything not in that boundary
-- **Model:** The set of abstractions used to solve problems in the given Domain
+- **Model:** The set of abstractions used to solve problems in the given Domain. This includes objects and functions.
 - **Ubiquitous Language:** The consistent way of describing objects and activities within the Context that is shared with the Developers and Domain Experts (What we have here is a failure to communicate)
-
-> Note: If an object could potentially have two different meaning in the same Context, then the Context may be too broad. Classic example is Customer.
 
 ---
 
@@ -80,6 +88,8 @@ The term "Domain Driven Design" comes from Eric Evans. It was used in his book o
 
 ---
 
+### Why F#?
+
 .center.middle[
     <div>
         <img src="images/why-use-fsharp.jpg" style="max-width:100%;max-height:100%">
@@ -103,6 +113,17 @@ The term "Domain Driven Design" comes from Eric Evans. It was used in his book o
 
 - If you write SQL, you are a functional programmer
 - If you write LINQ expressions, you are a functional programmer
+- It is the way we are starting to solve our most complex problems
+    - **UI** with React, Redux, Elm
+    - **Distributed Systems** with Event Sourcing
+    - **Scalability** with cloud lambdas/functions (Azure Functions, AWS Lambda)
+    - **Dependency Management** with Dependency Injection (by another name is function as a parameter)
+
+.center.middle[
+    <div>
+        <img src="images/gears.jpg" style="max-width:100%;max-height:100%">
+    </div>
+]
 
 ---
 
@@ -112,9 +133,9 @@ The term "Domain Driven Design" comes from Eric Evans. It was used in his book o
 - Type aliases
 - Value based comparison
 - Units of Measure
-- Algebraic type system (more on that later)
+- Algebraic type system for easy composition of types
 - Robust type inference (not checking)
-- Match statement forces handling of cases in all instances. If you add a new possible state, it will break every match statement that doesn't cover it.
+- Match statement based branching
 
 ---
 
@@ -130,7 +151,7 @@ The term "Domain Driven Design" comes from Eric Evans. It was used in his book o
 
 ---
 
-## Application to Financial Domain
+## Application to a Purchasing Domain
 
 ---
 
@@ -195,13 +216,35 @@ public class StockItem {
 Question
 
 - Is any string an acceptable `InventoryId`?
-- Can you have a StockItem with no InventoryId?
 - Can you have an InventoryId with infinite length?
 - Can a `UnitCost` really take on any value a `decimal` can?
-- Can you have negative `UnitCost`? No!
+- Can you have negative `UnitCost`?
 - Do we ever expect to see a `SalesRate` less than `0.0`?
 - What can we do to restrict the domains of these values?
 - What is the worst consequence of this?
+
+---
+
+### Two Ways of Seeing Boundaries
+
+#### Boundary for Oppression
+
+.center.middle[
+    <div>
+        <img src="images/locked-gate.jpg" style="max-width:100%;max-height:100%">
+    </div>
+]
+---
+
+### Two Ways of Seeing Boundaries
+
+#### Boundary for Freedom
+
+.center.middle[
+    <div>
+        <img src="images/safe-fence.jpg" style="max-width:100%;max-height:100%">
+    </div>
+]
 
 ---
 
@@ -209,9 +252,7 @@ Question
 
 - For proper DDD we would like to restrict the values of `InventoryId`, `UnitCost`, and `SalesRate`. Let's look at doing this in F#
 
----
-
-### InventoryId Questions
+#### InventoryId Questions
 
 Q: What are the valid values for an `InventoryId`?  
 A: Well, it's always letters and numbers.  
