@@ -6,7 +6,7 @@
 
 ### What we are going to cover
 
-- What is DDD
+- What is Domain Driven Design (DDD)
 - What is the benefit of DDD
 - Why is F# uniquely suited for DDD
 - Application of DDD with F# do a financial domain
@@ -27,7 +27,8 @@
 
 ### Where does it come from?
 
-- The term "Domain Driven Design" comes from Eric Evans. It was used in his book of the the same title (citation).
+The term "Domain Driven Design" comes from Eric Evans. It was used in his book of the the same title (citation).
+
 > "The purpose of abstraction is not to be vague, but to create a new semantic level in which one can be absolutely precise."
 >> **Edsger Dijkstra**
 
@@ -35,10 +36,10 @@
 
 ### What's the high level idea?
 
-- Context: The conceptual umbrella that everything falls under
-- Domain: Define a clear boundary for what the project or solution is about so that you can say "No" to everything not in that boundary
-- Model: The set of abstractions used to solve problems in the given Domain
-- Ubiquitous Language: The consistent way of describing objects and activities within the Context that is shared with the Developers and Domain Experts (What we have here is a failure to communicate)
+- **Context:** The conceptual umbrella that everything falls under
+- **Domain:** Define a clear boundary for what the project or solution is about so that you can say "No" to everything not in that boundary
+- **Model:** The set of abstractions used to solve problems in the given Domain
+- **Ubiquitous Language:** The consistent way of describing objects and activities within the Context that is shared with the Developers and Domain Experts (What we have here is a failure to communicate)
 
 > Note: If an object could potentially have two different meaning in the same Context, then the Context may be too broad. Classic example is Customer.
 
@@ -46,13 +47,13 @@
 
 ### What are the tools of DDD?
 
-- Entities: An object which is identified by its identity. (ie: Purchase Order Line, Customer, Sales Order Line...)
-- Value Object: An object which has value but no identity. Immutable by default. (Shipping Address)
-- Aggregate: A collection of Entities which are bound together and must be treated as a whole. (ie: Purchase Order, Sales Order)
-- Domain Event: An event which the domain expert cares about. (ie: Purchase Order Placed, Purchase Order Shipped, Sales Order Placed, ...)
-- Service: An operation that does not belong to any object. (ie: Purchase Order Placement Service, Shipment Processing Service)
-- Repository: A method for retrieving Domain Objects which is storage method agnostic (SQL DB Client, Document Store Client)
-- Factory: An object (or function) for creating Domain Objects which can be swapped out
+- **Entities:** An object which is identified by its identity. (i.e. Purchase Order Line, Customer, Sales Order Line...)
+- **Value Object:** An object which has value but no identity. Immutable by default. (Shipping Address)
+- **Aggregate:** A collection of Entities which are bound together and must be treated as a whole. (i.e. Purchase Order, Sales Order)
+- **Domain Event** An event which the domain expert cares about. (i.e. Purchase Order Placed, Purchase Order Shipped, Sales Order Placed, ...)
+- **Service:** An operation that does not belong to any object. (i.e. Purchase Order Placement Service, Shipment Processing Service)
+- **Repository:** A method for retrieving Domain Objects which is storage method agnostic (SQL DB Client, Document Store Client)
+- **Factory:** An object (or function) for creating Domain Objects which can be swapped out
 
 ---
 
@@ -73,13 +74,13 @@
 - First released in 2005
 - Runs on top of the .NET Runtime (cross platform)
 - An ancestor of OCaml
-- It is a pragmatic functional language (ie: you can write non-Functional Code)
+- It is a pragmatic functional language (i.e. you can write non-Functional Code)
 - Great for OO and Procedural Programming
 - Same performance as C#
 
 ---
 
-### What separates Functional from Imperitive Programming?
+### What separates Functional from Imperative Programming?
 
 - Functional Programming is expressions instead of commands
 - Everything can be thought of as a function
@@ -115,7 +116,7 @@
 
 ---
 
-### Sum Types (aka Discrimiated Union): A type which enforces dealing with various sub-types. Vegetable could be a 
+### Sum Types (aka Discriminated Union): A type which enforces dealing with various sub-types. Vegetable could be a 
 
 ---
 
@@ -129,16 +130,35 @@
 - We cannot afford making a poor recommendation
 - The model needs to be easy to maintain since strategies evolve
 - Ideally we want to model the restrictions of our domain within the types themselves
-- Relying on a Developer to remember to validate a number will fail (ie: Checking for non-negativity)
+- Relying on a Developer to remember to validate a number will fail (i.e. Checking for non-negativity)
 
 ---
 
 ### The Domain
 
-- Stock Items: The items that we sell on Marketplaces. These represent physical units of inventory
-- Floor Price: The Lowest Price which we can afford to sell an item for
-- Days of Inventory: The number of days which an item is in stock
-- Sales Rate: The daily rate which we have or expect to make sales
+**Stock Items:** The items that we sell on Marketplaces. These represent physical units of inventory
+**Floor Price:** The Lowest Price which we can afford to sell an item for
+**Days of Inventory:** The number of days which an item is in stock or we would like to have in stock
+**Sales Rate:** The daily rate which we have or expect to make sales
+**Order Quantity:** The Number of units that we want to purchase
+
+---
+
+### Naive Stock Item Model
+
+```csharp
+public class StockItem {
+    public string InventoryId { get; }
+    public decimal UnitCost { get; }
+    public float SalesRate { get; }
+
+    public StockItem(string inventoryId, decimal unitCost, float salesRate){
+        InventoryId = inventoryId;
+        UnitCost = unitCost;
+        SalesRate = salesRate;
+    }
+}
+```
 
 ---
 
@@ -206,7 +226,7 @@ module InventoryId =
 ### UnitCost Questions
 
 Q: Do you ever have \$0.0 cost items?  
-A: No, those would not be considered StockItems. We would call those Gift With Purchase or Samples. We resupply those using a different managment system.  
+A: No, those would not be considered StockItems. We would call those Gift With Purchase or Samples. We resupply those using a different management system.  
 Q: What is the highest cost item you would ever expect to see?  
 A: Oh, we have had items up to $1,000  
 Q: If an item came in with a cost over say $2,000, would you want a warning of some kind?  
@@ -312,7 +332,7 @@ module DaysOfInventory =
         if daysOfInventory > 0. then
             Some (DaysOfInventory daysOfInventory)
         else
-            None 
+            None
 ```
 
 ---
@@ -418,14 +438,28 @@ module Replenishment =
 
         match doi with
         | Some d -> d * stockItem.SalesRate
-        | None -> ItemQuantity 0.0     
+        | None -> ItemQuantity 0.0
 ```
+
+---
+
+### A Critique
+
+> So, DaysOfInventory is now a pain to use in any kind of calculation. By always having subtraction produce an `Option<DaysOfInventory>` we have to always use a match case to get to the value inside.
+
+> Yes, this is annoying but it is also forcing us to deal with a very real possibility. Let's see if there is anything we can do about that...
 
 ---
 
 ### DDD Takeaways
 
-- Sometimes 
+- DDD is a great system for getting clarity on how a domain should function
+- The aim is to create a unified language around a problem so everyone understands what is going on
+- The Domain Model is a tool for the Developer and the Domain Expert
+- The Domain Model is a means of communication, not just computation
+- DDD is not for every problem. One sweet spot is complex domains where there are many natural constraints on values.
+- DDD is likely not a good solution for situations where performance is more important than maintainability
+- Sometimes DDD can feel cumbersome but the return on reliability and maintainability may be worth it
 
 ---
 

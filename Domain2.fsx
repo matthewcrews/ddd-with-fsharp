@@ -5,6 +5,10 @@ type ProfitCategory =
 
 type ItemQuantity = ItemQuantity of float
 
+module ItemQuantity =
+    let zero =
+        ItemQuantity 0.0
+
 type InventoryId = InventoryId of string
 
 module InventoryId =
@@ -72,14 +76,14 @@ type DaysOfInventory = DaysOfInventory of float with
             None
 
     static member (*) (DaysOfInventory d, SalesRate s) =
-        ItemQuantity (d * s)           
+        ItemQuantity (d * s)
 
 module DaysOfInventory =
     let tryCreate daysOfInventory =
         if daysOfInventory > 0. then
             Some (DaysOfInventory daysOfInventory)
         else
-            None        
+            None
 
 module Replenishment =
     let purchaseQuantity1 (DaysOfInventory doiTarget) (stockItem:StockItem) =
@@ -98,5 +102,5 @@ module Replenishment =
 
         match doi with
         | Some d -> d * stockItem.SalesRate
-        | None -> ItemQuantity 0.0        
+        | None -> ItemQuantity.zero
 
