@@ -80,6 +80,16 @@ The term "Domain Driven Design" comes from Eric Evans. It was used in his book o
 
 ---
 
+.center.middle[
+    <div>
+        <img src="images/why-use-fsharp.jpg" style="max-width:100%;max-height:100%">
+    </div>
+]
+
+> Petricek, Thomas. “F# In Numbers: A Look at the Annual F# Survey Results.” InfoQ, 5 Aug. 2016, www.infoq.com/articles/fsharp-community-survey-2016.
+
+---
+
 ### What separates Functional from Imperative Programming?
 
 - Functional Programming is expressions instead of commands
@@ -132,15 +142,19 @@ The term "Domain Driven Design" comes from Eric Evans. It was used in his book o
 - Ideally we want to model the restrictions of our domain within the types themselves
 - Relying on a Developer to remember to validate a number will fail (i.e. Checking for non-negativity)
 
+![Finance Problem](/images/finance.jpeg)
+
 ---
 
 ### The Domain
 
-**Stock Items:** The items that we sell on Marketplaces. These represent physical units of inventory
-**Floor Price:** The Lowest Price which we can afford to sell an item for
-**Days of Inventory:** The number of days which an item is in stock or we would like to have in stock
-**Sales Rate:** The daily rate which we have or expect to make sales
-**Order Quantity:** The Number of units that we want to purchase
+**Stock Items:** The items that we sell on Marketplaces. These represent physical units of inventory  
+**Floor Price:** The Lowest Price which we can afford to sell an item for  
+**Days of Inventory:** The number of days which we would like to have a Stock Item in stock  
+**Sales Rate:** The daily rate which we have or expect to make sales  
+**Order Quantity:** The Number of units that we want to purchase  
+
+![Domain Diagramming](/images/diagram-domain.jpeg)
 
 ---
 
@@ -475,3 +489,9 @@ module Replenishment =
 
 fsharpforfunandprofit.com by Scott Wlaschin  
 fsharp.org
+
+---
+
+## Citations
+
+[1]: Petricek, Thomas. “F# In Numbers: A Look at the Annual F# Survey Results.” InfoQ, 5 Aug. 2016, www.infoq.com/articles/fsharp-community-survey-2016.
