@@ -541,9 +541,23 @@ module Replenishment =
 
 ### A Critique
 
-> So, DaysOfInventory is now a pain to use in any kind of calculation. By always having subtraction produce an `Option<DaysOfInventory>` we have to always use a match case to get to the value inside.
+#### Valid Complaint
 
-> Yes, this is annoying but it is also forcing us to deal with a very real possibility. Let's see if there is anything we can do about that...
+The `DaysOfInventory` type is now a pain to use whenever we need to subtract (which is often). By always having subtraction produce an `Option<DaysOfInventory>` we have to always use a match case to get to the value inside.
+
+#### A Response
+
+Yes, this is annoying but it is also forcing us to deal with a very real possibility. Let's see if there is anything we can do about that...
+
+---
+
+### The Problem Statements
+
+When we need to combine multiple instances of `DaysOfInventory` using operators which could produce `Option<DaysOfInventory>`, we do not have a clean way of doing it without using `match` statements everywhere.
+
+#### Option 1: Overload the necessary operators
+
+#### Option 2: Create a new function
 
 ---
 
@@ -571,6 +585,7 @@ module Replenishment =
 
 fsharpforfunandprofit.com by Scott Wlaschin  
 fsharp.org
+sergeytihon.com by Sergey Tihon
 
 ---
 
