@@ -249,7 +249,6 @@ type VisitsPerHour = VisitsPerHour of float
 - **Days of Inventory:** The number of days which we would like to have a Stock Item in stock  
 - **Sales Rate:** The daily rate which we have or expect to make sales  
 - **Item Quantity:** A count of a particular Stock Item
-- **Order Quantity:** The Number of units that we want to purchase  
 
 ***
 
@@ -458,15 +457,32 @@ module DaysOfInventory =
 
 ***
 
+### ItemQuantity Model
+
+```fsharp
+type ItemQuantity = ItemQuantity of float
+
+module ItemQuantity =
+    let create quantity =
+        if quantity >= 0 then
+            Some (ItemQuantity quantity)
+        else
+            None
+
+    let zero =
+        ItemQuantity 0.0
+```
+
+***
+
 ### Replenishment Module
 
 ```fsharp
 module Replenishment =
-    let purchaseQuantity doiTarget (stockItem:StockItem) =
-        let quantity (DaysOfInventory doi) (SalesRate rate) =
-            doi * rate
+    let purchaseQuantity (DaysOfInventory doiTarget) (stockItem:StockItem) =
+        let (SalesRate salesRate) = stockItem.SalesRate
 
-        quantity doiTarget stockItem.SalesRate  
+        ItemQuantity (doiTarget * salesRate)
 ```
 
 ' What do we do if we just want to support the multiplication of `DaysOfInventory` and `SalesRate`?
@@ -485,10 +501,9 @@ We now update our `purchaseQuantity` function.
 
 ```fsharp
 module Replenishment =
-    let purchaseQuantity (daysOfInventory:DaysOfInventory) (stockItem:StockItem) =
+    let purchaseQuantity (doiTarget:DaysOfInventory) (stockItem:StockItem) =
         daysOfInventory * stockItem.SalesRate
-        |> OrderQuantity.ofItemQuantity
-// val purchaseQuantity : DaysOfInventory -> StockItem -> OrderQuantity
+// val purchaseQuantity : DaysOfInventory -> StockItem -> ItemQuantity
 ```
 
 ***
@@ -532,8 +547,7 @@ module Replenishment =
         | Cat1 -> ItemQuantity ((doiTarget + 10.0) * salesRate)
         | Cat2 -> ItemQuantity (doiTarget * salesRate)
         | Cat3 -> ItemQuantity ((doiTarget - 15.0) * salesRate)
-        |> OrderQuantity.ofItemQuantity
-// val purchaseQuantity : DaysOfInventory -> StockItem -> OrderQuantity
+// val purchaseQuantity : DaysOfInventory -> StockItem -> ItemQuantity
 ```
 
 ' Question
@@ -558,7 +572,7 @@ type DaysOfInventory = DaysOfInventory of float with
             None
 
     static member (*) (DaysOfInventory d, SalesRate s) =
-        ItemQuantity (d * s)
+        ItemQuantity.zero
 ```
 
 ***
@@ -581,7 +595,7 @@ module Replenishment =
 
         match doi with
         | Some d -> d * stockItem.SalesRate
-        | None -> ItemQuantity 0.0
+        | None -> ItemQuantity.zero
 ```
 
 ***
@@ -592,7 +606,7 @@ The `DaysOfInventory` type is now a pain to use whenever we need to subtract (wh
 
 #### The Response
 
-Yes, this is annoying but it is also forcing us to deal with a very real possibility. Let's see if there is anything we can do about that...
+Yes, this is annoying but it is also forcing us to deal with a very real possibility. Let's see if there is anything we can do...
 
 ***
 
@@ -603,6 +617,11 @@ type DaysOfInventory = DaysOfInventory of float with
     static member (+) (DaysOfInventory d1, DaysOfInventory d2) =
         DaysOfInventory (d1 + d2)
 
+    static member (+) (d1:Option<DaysOfInventory>, d2:DaysOfInventory) =
+        match d1 with
+        | Some d1s -> d1s + d2 |> Some
+        | None -> None
+
     static member (-) (DaysOfInventory d1, DaysOfInventory d2) =
         if d1 > d2 then
             DaysOfInventory (d1 - d2)
@@ -612,8 +631,29 @@ type DaysOfInventory = DaysOfInventory of float with
 
     static member (-) (d1:Option<DaysOfInventory>, d2:DaysOfInventory) =
         match d1 with
-        | Some d1s -> d1s - d2 |> Some
+        | Some d1s -> d1s - d2
         | None -> None
+```
+
+***
+
+### Replenishment Module : Take 4
+
+```fsharp
+module Replenishment =
+    let purchaseQuantity doiTarget (stockItem:StockItem) =
+        let doi =
+            match stockItem.ProfitCategory with
+            | Cat1 ->
+                (DaysOfInventory.tryCreate 10.0) + doiTarget
+            | Cat2 ->
+                Some doiTarget
+            | Cat3 ->
+                (DaysOfInventory.tryCreate 15.0) - doiTarget
+
+        match doi with
+        | Some d -> d * stockItem.SalesRate
+        | None -> ItemQuantity.zero
 ```
 
 ***

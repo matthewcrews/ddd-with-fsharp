@@ -76,6 +76,11 @@ type DaysOfInventory = DaysOfInventory of float with
     static member (+) (DaysOfInventory d1, DaysOfInventory d2) =
         DaysOfInventory (d1 + d2)
 
+    static member (+) (d1:Option<DaysOfInventory>, d2:DaysOfInventory) =
+        match d1 with
+        | Some d1s -> d1s + d2 |> Some
+        | None -> None
+
     static member (-) (DaysOfInventory d1, DaysOfInventory d2) =
         if d1 > d2 then
             DaysOfInventory (d1 - d2)
@@ -85,7 +90,7 @@ type DaysOfInventory = DaysOfInventory of float with
 
     static member (-) (d1:Option<DaysOfInventory>, d2:DaysOfInventory) =
         match d1 with
-        | Some d1s -> d1s - d2 |> Some
+        | Some d1s -> d1s - d2
         | None -> None
 
     static member (*) (DaysOfInventory d, SalesRate s) =
@@ -101,23 +106,19 @@ module DaysOfInventory =
 
 
 module Replenishment =
-    let purchaseQuantity1 (DaysOfInventory doiTarget) (stockItem:StockItem) =
-        let (SalesRate salesRate) = stockItem.SalesRate
-        match stockItem.ProfitCategory with
-        | Cat1 -> ItemQuantity ((doiTarget + 10.0) * salesRate)
-        | Cat2 -> ItemQuantity (doiTarget * salesRate)
-        | Cat3 -> ItemQuantity ((doiTarget - 15.0) * salesRate)
-
-    let purchaseQuantity2 doiTarget (stockItem:StockItem) =
+    let purchaseQuantity (doiTarget:DaysOfInventory) (stockItem:StockItem) =
         let doi =
             match stockItem.ProfitCategory with
-            | Cat1 -> doiTarget + (DaysOfInventory 10.0) |> Some
-            | Cat2 -> doiTarget |> Some
-            | Cat3 -> doiTarget - (DaysOfInventory 15.0)
+            | Cat1 ->
+                (DaysOfInventory.tryCreate 10.0) + doiTarget
+            | Cat2 ->
+                Some doiTarget
+            | Cat3 ->
+                (DaysOfInventory.tryCreate 15.0) - doiTarget
 
         match doi with
-        | Some d -> OrderQuantity (d * stockItem.SalesRate)
-        | None -> OrderQuantity (ItemQuantity.zero)
+        | Some d -> d * stockItem.SalesRate
+        | None -> ItemQuantity.zero
 
 let d1 = DaysOfInventory 10.
 let d2 = DaysOfInventory 15.
