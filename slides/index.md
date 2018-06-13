@@ -40,10 +40,10 @@
 
 The term "Domain Driven Design" comes from Eric Evans. It was used in his book of the the same title.
 
-- The focus of the project is on the Domain and the Domain Logic
-- The design of the solution should depend on the Domain Model
-- The Domain and Domain Logic are the result of intense collaboration between the Developer and the Domain Expert
-- The implementation for the Domain and Domain Logic is not just code but also documentation of how the process works
+- Focus of the project is on the Domain and the Domain Logic
+- Design of the solution should depend on the Domain Model
+- Domain and Domain Logic are the result of intense collaboration between the Developer and the Domain Expert
+- Implementation for the Domain and Domain Logic is not just code but also documentation of how the process works
 
 ***
 
@@ -91,7 +91,7 @@ A Domain Expert should be able to look at the code and verify whether the logic 
 
 ***
 
-## F# and it's aptness for DDD
+## F# + DDD = <3
 
 ***
 
@@ -226,6 +226,9 @@ type VisitsPerHour = float
 
 ***
 
+- data-background : images/finance.jpeg
+
+***
 ### The Problem Statement
 
 - We need to create a domain for performing costing calculations
@@ -234,7 +237,9 @@ type VisitsPerHour = float
 - Ideally we want to model the restrictions of our domain within the types themselves
 - Relying on a Developer to remember to validate a number will fail (i.e. Checking for non-negativity)
 
-![Finance Problem](/images/finance.jpeg)
+***
+
+- data-background : images/diagram-domain.jpeg
 
 ***
 
@@ -245,8 +250,6 @@ type VisitsPerHour = float
 - **Sales Rate:** The daily rate which we have or expect to make sales  
 - **Item Quantity:** A count of a particular Stock Item
 - **Order Quantity:** The Number of units that we want to purchase  
-
-![Domain Diagramming](/images/diagram-domain.jpeg)
 
 ***
 
