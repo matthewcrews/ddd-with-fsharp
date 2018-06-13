@@ -97,7 +97,7 @@ A Domain Expert should be able to look at the code and verify whether the logic 
 
 ### What is F#?
 
-- A Functional-First, statically typed language 
+- A Functional-First, statically typed language
 - First released in 2005
 - Runs on top of the .NET Runtime (cross platform)
 - An ancestor of OCaml
@@ -115,8 +115,8 @@ Petricek, Thomas. “F# In Numbers: A Look at the Annual F# Survey Results.” I
 
 ### What separates Functional from Imperative Programming?
 
-- Functional Programming uses expressions instead of commands
 - Everything can be thought of as a function
+- Functional Programming uses expressions instead of commands
 - All code returns something, even if that something is `unit` (The closest thing to `void` in F#)
 - Functions are first class citizens and are often parameters to other functions
 
@@ -141,27 +141,84 @@ It is the way we are starting to solve our most complex problems
 
 ***
 
-### So what makes F# great for DDD?
+### What makes F# great for DDD
 
+- Algebraic type system for easy composition of types
 - Zero friction for defining many types
 - Type aliases
-- Value based comparison
 - Units of Measure
-- Algebraic type system for easy composition of types
 - Robust type inference (not checking)
 - Match statement based branching
 
 ***
 
-### What is up with these Algebraic Types?
+### What is up with these Algebraic Types
+
+F# has an algebraic type system which makes is simple and efficient to accurately model a domain. This comes in the form of a terse syntax for defining Product Types (Tuples, Records), Sum Types (Discriminated Unions) and Type Aliases.
 
 ***
 
-### Product Types: What we are used to. Tuples and Records
+### Product Types
+
+#### Tuples
+
+```fsharp
+type Point = float * float
+```
+
+#### Records
+
+```fsharp
+type Chicken = {
+    Name : string
+    Size : float
+    Color : string
+}
+
+type Cow = {
+    Name : string
+    Weight : float
+    Breed : string
+}
+```
 
 ***
 
-### Sum Types (aka Discriminated Union): A type which enforces dealing with various sub-types. Vegetable could be a 
+### Sum Types
+
+**Discriminated Union:** A type which enforces dealing with various sub-types.
+
+```fsharp
+type Point = {
+    X : float
+    Y : float
+}
+
+type Shape =
+    | Segment of Point * Point
+    | Triangle of Point * Point * Point
+    | Square of Point * Point * Point * Point
+
+type Color = Red | Brown | White
+
+type Chicken = {
+    Name : string
+    Size : float
+    Color : Color
+}
+```
+
+***
+
+### Type Aliases
+
+A simple way for providing context for primitive types
+
+```fsharp
+type InventoryId = string
+type UnitCost = decimal
+type VisitsPerHour = float
+```
 
 ***
 
@@ -279,12 +336,12 @@ module InventoryId =
 ### UnitCost Questions
 
 - Q: Do you ever have \$0.0 cost items?  
-- A: No, those would not be considered a Stock Item. We would call those Gift With Purchase or Samples. We resupply those using a different management system.  
-- Q: What is the highest cost item you would ever expect to see?  
+- A: No, we call those samples and we replenish with a different system  
+- Q: What is the most expensive item you've purchased?  
 - A: Oh, we have had items up to \$1,000  
 - Q: If an item came in with a cost over say \$2,000, would you want a warning of some kind?  
-- A: Well, I don't need an immediate warning but we would probably need a report to find those instances?  
-- Q: For the sake of this analysis, should I exclude items with that high of cost?  
+- A: I don't need an immediate warning but we would probably need a report to find those instances?
+- Q: Should I exclude items with that high of cost?  
 - A: Yes, we would not want to make a purchasing recommendation with an errant cost in the system  
 
 ***
@@ -302,6 +359,8 @@ module UnitCost =
             None
 ```
 
+' Yes, hardcoding the $2000 is bad form but this is just an example
+
 ***
 
 ### SalesRate Model
@@ -316,6 +375,8 @@ module SalesRate =
         else
             None
 ```
+
+' We ask a similar series of questions about the SalesRate model for this this
 
 ***
 
