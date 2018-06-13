@@ -81,6 +81,11 @@ type DaysOfInventory = DaysOfInventory of float with
         else
             None
 
+    static member (-) (d1:Option<DaysOfInventory>, d2:DaysOfInventory) =
+        match d1 with
+        | Some d1s -> d1s - d2 |> Some
+        | None -> None
+
     static member (*) (DaysOfInventory d, SalesRate s) =
         ItemQuantity (d * s)
 
@@ -112,3 +117,8 @@ module Replenishment =
         | Some d -> OrderQuantity (d * stockItem.SalesRate)
         | None -> OrderQuantity (ItemQuantity.zero)
 
+let d1 = DaysOfInventory 10.
+let d2 = DaysOfInventory 15.
+let d3 = DaysOfInventory 100.
+
+let dSub = d3 - d2 - d1

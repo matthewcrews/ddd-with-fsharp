@@ -229,6 +229,7 @@ type VisitsPerHour = float
 - data-background : images/finance.jpeg
 
 ***
+
 ### The Problem Statement
 
 - We need to create a domain for performing costing calculations
@@ -436,8 +437,10 @@ public static class Replenishment {
 
 ' Questions:
 ' What can go wrong here?
+' Days of Inventory could be zero or negative leading to wild behavior
 ' What happens if numbers are negative?
 ' Point out that DaysOfInventory should have a restricted domain
+
 ***
 
 ### Days Of Inventory Model
@@ -466,24 +469,11 @@ module Replenishment =
         quantity doiTarget stockItem.SalesRate  
 ```
 
-***
-
-### Replenishment Module
-
-```fsharp
-module Replenishment =
-    let purchaseQuantity doiTarget (stockItem:StockItem) =
-        let quantity (DaysOfInventory doi) (SalesRate rate) =
-            doi * rate
-
-        quantity doiTarget stockItem.SalesRate  
-```
-
-What do we do if we just want to support the multiplication of `DaysOfInventory` and `SalesRate`?
+' What do we do if we just want to support the multiplication of `DaysOfInventory` and `SalesRate`?
 
 ***
 
-### Adding Operations to DaysOfInventory Model
+### Adding Operators
 
 ```fsharp
 type DaysOfInventory = DaysOfInventory of float with
@@ -546,11 +536,10 @@ module Replenishment =
 // val purchaseQuantity : DaysOfInventory -> StockItem -> OrderQuantity
 ```
 
-Question
-
-- What possible error have we introduced?
-- How do we avoid doing this? (Don't work with base types. Work with domain types as much as possible.)
-- How do we fix it?
+' Question
+' What possible error have we introduced?
+' How do we avoid doing this? (Don't work with base types. Work with domain types as much as possible.)
+' How do we fix it?
 
 ***
 
@@ -578,19 +567,17 @@ type DaysOfInventory = DaysOfInventory of float with
 
 ```fsharp
 module Replenishment =
-    let purchaseQuantity1 (DaysOfInventory doiTarget) (stockItem:StockItem) =
-        let (SalesRate salesRate) = stockItem.SalesRate
-        match stockItem.ProfitCategory with
-        | Cat1 -> ItemQuantity ((doiTarget + 10.0) * salesRate)
-        | Cat2 -> ItemQuantity (doiTarget * salesRate)
-        | Cat3 -> ItemQuantity ((doiTarget - 15.0) * salesRate)
-
-    let purchaseQuantity2 doiTarget (stockItem:StockItem) =
+    let purchaseQuantity doiTarget (stockItem:StockItem) =
         let doi =
             match stockItem.ProfitCategory with
-            | Cat1 -> doiTarget + (DaysOfInventory 10.0) |> Some
-            | Cat2 -> doiTarget |> Some
-            | Cat3 -> doiTarget - (DaysOfInventory 15.0)
+            | Cat1 ->
+                doiTarget + (DaysOfInventory 10.0)
+                |> Some
+            | Cat2 ->
+                doiTarget
+                |> Some
+            | Cat3 ->
+                doiTarget - (DaysOfInventory 15.0)
 
         match doi with
         | Some d -> d * stockItem.SalesRate
@@ -601,26 +588,80 @@ module Replenishment =
 
 ### A Critique
 
-#### Valid Complaint
-
 The `DaysOfInventory` type is now a pain to use whenever we need to subtract (which is often). By always having subtraction produce an `Option<DaysOfInventory>` we have to always use a match case to get to the value inside.
 
-#### A Response
+#### The Response
 
 Yes, this is annoying but it is also forcing us to deal with a very real possibility. Let's see if there is anything we can do about that...
 
 ***
 
-### The Problem Statements
+### Overload Operators
 
-When we need to combine multiple instances of `DaysOfInventory` using operators which could produce `Option<DaysOfInventory>`, we do not have a clean way of doing it without using `match` statements everywhere.
+```fsharp
+type DaysOfInventory = DaysOfInventory of float with
+    static member (+) (DaysOfInventory d1, DaysOfInventory d2) =
+        DaysOfInventory (d1 + d2)
 
-#### Option 1: Overload the necessary operators
+    static member (-) (DaysOfInventory d1, DaysOfInventory d2) =
+        if d1 > d2 then
+            DaysOfInventory (d1 - d2)
+            |> Some
+        else
+            None
 
-#### Option 2: Create a new function
+    static member (-) (d1:Option<DaysOfInventory>, d2:DaysOfInventory) =
+        match d1 with
+        | Some d1s -> d1s - d2 |> Some
+        | None -> None
+```
 
 ***
 
+### Another critique
+
+The `StockItem.tryCreate` function has a small `match` statement in it right now. In the real world, there would be more properties on that type. Won't the `match` statement explode in size? Won't that become onerous to maintain?
+
+### Response
+
+Yes, yes it will. F# offers another tool for dealing with this called *Computation Expressions*.
+
+***
+
+### My First Computation Expression
+
+#### The Maybe builder
+
+```fsharp
+type Maybe () =
+    member this.Bind(opt, func) = opt |> Option.bind func
+    member this.Return v = Some v
+
+let maybe = Maybe ()
+```
+
+***
+
+```fsharp
+module StockItem =
+    let create inventoryId unitCost salesRate profitCategory =
+        {
+            InventoryId = inventoryId
+            UnitCost = unitCost
+            SalesRate = salesRate
+            ProfitCategory = profitCategory
+        }
+
+    let tryCreate inventoryId unitCost salesRate profitCategory =
+        maybe {
+            let! inventoryId = InventoryId.tryCreate inventoryId
+            let! unitCost = UnitCost.tryCreate unitCost
+            let! salesRate = SalesRate.tryCreate salesRate
+            return (create inventoryId unitCost salesRate profitCategory)
+        }
+```
+
+***
 ### DDD Takeaways
 
 - DDD is a great system for getting clarity on how a domain should function
