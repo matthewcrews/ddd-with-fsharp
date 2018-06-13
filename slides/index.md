@@ -5,7 +5,7 @@
 
 ***
 
-# Domain Driven Design with FSharp
+# Domain Driven Design with F#
 
 ***
 
@@ -16,8 +16,8 @@
 - What is Domain Driven Design (DDD)
 - What is the benefit of DDD
 - Why is F# uniquely suited for DDD
-- Application of DDD with F# do a financial domain
-- Gotchas of DDD and overcoming them
+- Application of DDD with F# do a purchasing domain
+- Some gotchas and overcoming them
 
 ***
 
@@ -145,7 +145,6 @@ It is the way we are starting to solve our most complex problems
 
 - Algebraic type system for easy composition of types
 - Zero friction for defining many types
-- Type aliases
 - Units of Measure
 - Robust type inference (not checking)
 - Match statement based branching
@@ -186,7 +185,7 @@ type Cow = {
 
 ### Sum Types
 
-**Discriminated Union:** A type which enforces dealing with various sub-types.
+**Discriminated Union:** A type which enforces dealing with various sub-types (commonly abbreviated DU)
 
 ```fsharp
 type Point = {
@@ -210,14 +209,14 @@ type Chicken = {
 
 ***
 
-### Type Aliases
+### Single Case DU
 
 A simple way for providing context for primitive types
 
 ```fsharp
-type InventoryId = string
-type UnitCost = decimal
-type VisitsPerHour = float
+type InventoryId = InventoryId of string
+type UnitCost = UnitCost of decimal
+type VisitsPerHour = VisitsPerHour of float
 ```
 
 ***
@@ -329,7 +328,8 @@ type InventoryId = InventoryId of string
 
 module InventoryId =
     let tryCreate (id:string) =
-        if id.Length > 5 && id.Length <= 20 then
+        let isLettersAndNumbers = Regex.Match(id, "^[a-zA-Z0-9]+$")
+        if (isLettersAndNumbers.Success) && id.Length >= 5 && id.Length <= 20 then
             Some (InventoryId id)
         else
             None
@@ -662,15 +662,14 @@ module StockItem =
 ```
 
 ***
-### DDD Takeaways
+### Takeaways
 
 - DDD is a great system for getting clarity on how a domain should function
 - The aim is to create a unified language around a problem so everyone understands what is going on
 - The Domain Model is a tool for the Developer and the Domain Expert
 - The Domain Model is a means of communication, not just computation
-- DDD is not for every problem. One sweet spot is complex domains where there are many natural constraints on values.
-- DDD is likely not a good solution for situations where performance is more important than maintainability
-- Sometimes DDD can feel cumbersome but the return on reliability and maintainability may be worth it
+- DDD is not for every problem
+- DDD can feel cumbersome but the return on reliability and maintainability may be worth it
 
 ***
 
@@ -688,8 +687,3 @@ fsharpforfunandprofit.com by Scott Wlaschin
 fsharp.org  
 sergeytihon.com by Sergey Tihon
 
-***
-
-## Citations
-
-[1]: Petricek, Thomas. “F# In Numbers: A Look at the Annual F# Survey Results.” InfoQ, 5 Aug. 2016, www.infoq.com/articles/fsharp-community-survey-2016.

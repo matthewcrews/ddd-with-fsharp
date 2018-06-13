@@ -1,3 +1,4 @@
+open System.Text.RegularExpressions
 type ProfitCategory = 
     | Cat1
     | Cat2
@@ -19,7 +20,8 @@ type InventoryId = InventoryId of string
 
 module InventoryId =
     let tryCreate (id:string) =
-        if id.Length >= 5 && id.Length <= 20 then
+        let isLettersAndNumbers = Regex.Match(id, "^[a-zA-Z0-9]+$")
+        if (isLettersAndNumbers.Success) && id.Length >= 5 && id.Length <= 20 then
             Some (InventoryId id)
         else
             None
