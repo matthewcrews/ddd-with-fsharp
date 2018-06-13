@@ -91,10 +91,7 @@ module DaysOfInventory =
         else
             None
 
-let inline maybeDeduct (b:'T) (a:Option<'T>) =
-    match a with
-    | Some v -> v - b
-    | None -> None
+
 
 module Replenishment =
     let purchaseQuantity1 (DaysOfInventory doiTarget) (stockItem:StockItem) =

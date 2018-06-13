@@ -1,6 +1,13 @@
+- title: Domain Driven Design with F#
+- author : Matthew Crews
+- theme : simple
+- transition : default
+
+***
+
 # Domain Driven Design with FSharp
 
----
+***
 
 ## Introduction
 
@@ -12,69 +19,81 @@
 - Application of DDD with F# do a financial domain
 - Gotchas of DDD and overcoming them
 
----
+***
 
 ### Who am I?
 
 - Matthew Crews, Developer and Optimization Engineer
 - Favorite language is whatever solves the problem well (F#, C#, C++, SQL, VBA, whatever)
 - F# is my primary language but I still consider myself novice to Functional Programming
-- I like clear, robust, and elegant code (in that order)
+- I like clear, robust, and elegant code
 - Twitter: @McCrews
 - Website: matthewcrews.com
 
----
+***
 
 ## Domain Driven Design
+
+***
 
 ### Where does it come from?
 
 The term "Domain Driven Design" comes from Eric Evans. It was used in his book of the the same title.
 
-#### The idea is...
-
 - The focus of the project is on the Domain and the Domain Logic
 - The design of the solution should depend on the Domain Model
 - The Domain and Domain Logic are the result of intense collaboration between the Developer and the Domain Expert
 - The implementation for the Domain and Domain Logic is not just code but also documentation of how the process works
-- A Domain Expert should be able to look at the code and verify whether the logic is correct, even if they don't necessarily know the language
+
+***
+
+### The Goal
+
+A Domain Expert should be able to look at the code and verify whether the logic is correct, even if they don't necessarily know the language
 
 > "The purpose of abstraction is not to be vague, but to create a new semantic level in which one can be absolutely precise."
 >> **Edsger Dijkstra**
 
----
+***
 
-### What's the high level idea?
+### What are the concepts
 
 - **Context:** The conceptual umbrella that everything falls under
 - **Domain:** Define a clear boundary for what the project or solution is about so that you can say "No" to everything not in that boundary
 - **Model:** The set of abstractions used to solve problems in the given Domain. This includes objects and functions.
 - **Ubiquitous Language:** The consistent way of describing objects and activities within the Context that is shared with the Developers and Domain Experts (What we have here is a failure to communicate)
 
----
+***
 
-### What are the tools of DDD?
+### What does that look like
 
-- **Entities:** An object which is identified by its identity. (i.e. Purchase Order Line, Customer, Sales Order Line...)
-- **Value Object:** An object which has value but no identity. Immutable by default. (Shipping Address)
-- **Aggregate:** A collection of Entities which are bound together and must be treated as a whole. (i.e. Purchase Order, Sales Order)
-- **Domain Event** An event which the domain expert cares about. (i.e. Purchase Order Placed, Purchase Order Shipped, Sales Order Placed, ...)
-- **Service:** An operation that does not belong to any object. (i.e. Purchase Order Placement Service, Shipment Processing Service)
-- **Repository:** A method for retrieving Domain Objects which is storage method agnostic (SQL DB Client, Document Store Client)
+- **Entities:** An object which is identified by its identity.
+- **Value Object:** An object which has value but no identity. Immutable by default.
+- **Aggregate:** A collection of Entities which are bound together and must be treated as a whole.
+- **Domain Event** An event which the domain expert cares about.
+- **Service:** An operation that does not belong to any object.
+- **Repository:** A method for retrieving Domain Objects which is storage method agnostic
 - **Factory:** An object (or function) for creating Domain Objects which can be swapped out
 
----
+' Entity: Purchase Order Line, Customer, Sales Order Line
+' Value Object: Shipping Address
+' Aggregate: Purchase Order, Sales Order
+' Domain Event: Purchase Order Placed, Purchase Order Shipped, Sales Order Placed
+' Service: Purchase Order Placement Service, Shipment Processing Service
+' Repository: SQL DB Client, Document Store Client
+
+***
 
 ### Why should I care?
 
 - By accurately modeling the domain, it is easier to discuss the solution with Domain Experts and Business Users
 - Helps with refactoring because the domain is more fully represented
 
----
+***
 
 ## F# and it's aptness for DDD
 
----
+***
 
 ### What is F#?
 
@@ -86,46 +105,41 @@ The term "Domain Driven Design" comes from Eric Evans. It was used in his book o
 - Great for OO and Procedural Programming
 - Same performance as C#
 
----
+***
 
-### Why F#?
+![FSharpUsage](images/why-use-fsharp.jpg)
 
-.center.middle[
-    <div>
-        <img src="images/why-use-fsharp.jpg" style="max-width:100%;max-height:100%">
-    </div>
-]
+Petricek, Thomas. “F# In Numbers: A Look at the Annual F# Survey Results.” InfoQ, 5 Aug. 2016, www.infoq.com/articles/fsharp-community-survey-2016
 
-> Petricek, Thomas. “F# In Numbers: A Look at the Annual F# Survey Results.” InfoQ, 5 Aug. 2016, www.infoq.com/articles/fsharp-community-survey-2016.
-
----
+***
 
 ### What separates Functional from Imperative Programming?
 
-- Functional Programming is expressions instead of commands
+- Functional Programming uses expressions instead of commands
 - Everything can be thought of as a function
 - All code returns something, even if that something is `unit` (The closest thing to `void` in F#)
 - Functions are first class citizens and are often parameters to other functions
 
----
+***
 
 ### Why do I care about Functional Programming?
 
-- If you write SQL, you are a functional programmer
-- If you write LINQ expressions, you are a functional programmer
-- It is the way we are starting to solve our most complex problems
-    - **UI** with React, Redux, Elm
-    - **Distributed Systems** with Event Sourcing
-    - **Scalability** with cloud lambdas/functions (Azure Functions, AWS Lambda)
-    - **Dependency Management** with Dependency Injection (by another name is function as a parameter)
+***
 
-.center.middle[
-    <div>
-        <img src="images/gears.jpg" style="max-width:100%;max-height:100%">
-    </div>
-]
+- data-background : images/gears.jpg
 
----
+***
+
+### Complexity
+
+It is the way we are starting to solve our most complex problems
+
+- **UI** with React, Redux, Elm
+- **Distributed Systems** with Event Sourcing
+- **Scalability** with cloud lambdas/functions (Azure Functions, AWS Lambda)
+- **Dependency Management** with Dependency Injection (by another name is function as a parameter)
+
+***
 
 ### So what makes F# great for DDD?
 
@@ -137,23 +151,23 @@ The term "Domain Driven Design" comes from Eric Evans. It was used in his book o
 - Robust type inference (not checking)
 - Match statement based branching
 
----
+***
 
 ### What is up with these Algebraic Types?
 
----
+***
 
 ### Product Types: What we are used to. Tuples and Records
 
----
+***
 
 ### Sum Types (aka Discriminated Union): A type which enforces dealing with various sub-types. Vegetable could be a 
 
----
+***
 
 ## Application to a Purchasing Domain
 
----
+***
 
 ### The Problem Statement
 
@@ -165,19 +179,19 @@ The term "Domain Driven Design" comes from Eric Evans. It was used in his book o
 
 ![Finance Problem](/images/finance.jpeg)
 
----
+***
 
 ### The Domain
 
-**Stock Item:** The items that we sell on Marketplaces. These represent physical units of inventory  
-**Days of Inventory:** The number of days which we would like to have a Stock Item in stock  
-**Sales Rate:** The daily rate which we have or expect to make sales  
-**Item Quantity:** A count of a particular Stock Item
-**Order Quantity:** The Number of units that we want to purchase  
+- **Stock Item:** The items that we sell on Marketplaces. These represent physical units of inventory  
+- **Days of Inventory:** The number of days which we would like to have a Stock Item in stock  
+- **Sales Rate:** The daily rate which we have or expect to make sales  
+- **Item Quantity:** A count of a particular Stock Item
+- **Order Quantity:** The Number of units that we want to purchase  
 
 ![Domain Diagramming](/images/diagram-domain.jpeg)
 
----
+***
 
 ### Naive Stock Item Model
 
@@ -195,73 +209,57 @@ public class StockItem {
 }
 ```
 
----
+' Question
+' Is any string an acceptable `InventoryId`?
+' Can you have an InventoryId with infinite length?
+' Can a `UnitCost` really take on any value a `decimal` can?
+' Can you have negative `UnitCost`?
+' Do we ever expect to see a `SalesRate` less than `0.0`?
+' What can we do to restrict the domains of these values?
+' What is the worst consequence of this?
 
-### Naive Stock Item Model
-
-```csharp
-public class StockItem {
-    public string InventoryId { get; }
-    public decimal UnitCost { get; }
-    public float SalesRate { get; }
-
-    public StockItem(string inventoryId, decimal unitCost, float salesRate){
-        InventoryId = inventoryId;
-        UnitCost = unitCost;
-        SalesRate = salesRate;
-    }
-}
-```
-
-Question
-
-- Is any string an acceptable `InventoryId`?
-- Can you have an InventoryId with infinite length?
-- Can a `UnitCost` really take on any value a `decimal` can?
-- Can you have negative `UnitCost`?
-- Do we ever expect to see a `SalesRate` less than `0.0`?
-- What can we do to restrict the domains of these values?
-- What is the worst consequence of this?
-
----
+***
 
 ### Two Ways of Seeing Boundaries
 
 #### Boundary for Oppression
 
-.center.middle[
-    <div>
-        <img src="images/locked-gate.jpg" style="max-width:100%;max-height:100%">
-    </div>
-]
----
+![Locked Gate](images/locked-gate.jpg)
+
+***
 
 ### Two Ways of Seeing Boundaries
 
 #### Boundary for Freedom
 
-.center.middle[
-    <div>
-        <img src="images/safe-fence.jpg" style="max-width:100%;max-height:100%">
-    </div>
-]
+![Fenced Bridge](images/safe-fence.jpg)
 
----
+***
 
 ### Stock Item Model
 
-For proper DDD we would like to restrict the values of `InventoryId`, `UnitCost`, and `SalesRate`. Let's look at doing this in F#
+For proper DDD we would like to restrict the values of 
+
+- `InventoryId`
+- `UnitCost`
+- `SalesRate`
+
+Let's look at doing this in F#
+
+***
 
 #### InventoryId Questions
 
-Q: What are the valid values for an `InventoryId`?  
-A: Well, it's always letters and numbers.  
-Q: Okay, can it be just a single letter?  
-A: No, it is always at least 5  
-Q: Can it be an infinite number of letters or numbers?  
-A: Oh, no it is never more than 20  
+- Q: What different values can show up in an `InventoryId`?  
+- A: Values??  
+- Q: You know, can it have letters, numbers, symbols, etc.  
+- A: Well, it's always letters and numbers.  
+- Q: Okay, can it be just a single letter?  
+- A: No, it is always at least 5  
+- Q: Can it be an any number of letters or numbers?  
+- A: Oh no, it is never more than 20  
 
----
+***
 
 ### InventoryId Model
 
@@ -276,20 +274,20 @@ module InventoryId =
             None
 ```
 
----
+***
 
 ### UnitCost Questions
 
-Q: Do you ever have $0.0 cost items?  
-A: No, those would not be considered a Stock Item. We would call those Gift With Purchase or Samples. We resupply those using a different management system.  
-Q: What is the highest cost item you would ever expect to see?  
-A: Oh, we have had items up to $1,000  
-Q: If an item came in with a cost over say $2,000, would you want a warning of some kind?  
-A: Well, I don't need an immediate warning but we would probably need a report to find those instances?  
-Q: For the sake of this analysis, should I exclude items with that high of cost?  
-A: Yes, we would not want to make a purchasing recommendation with an errant cost in the system  
+- Q: Do you ever have \$0.0 cost items?  
+- A: No, those would not be considered a Stock Item. We would call those Gift With Purchase or Samples. We resupply those using a different management system.  
+- Q: What is the highest cost item you would ever expect to see?  
+- A: Oh, we have had items up to \$1,000  
+- Q: If an item came in with a cost over say \$2,000, would you want a warning of some kind?  
+- A: Well, I don't need an immediate warning but we would probably need a report to find those instances?  
+- Q: For the sake of this analysis, should I exclude items with that high of cost?  
+- A: Yes, we would not want to make a purchasing recommendation with an errant cost in the system  
 
----
+***
 
 ### UnitCost Model
 
@@ -304,7 +302,7 @@ module UnitCost =
             None
 ```
 
----
+***
 
 ### SalesRate Model
 
@@ -319,9 +317,7 @@ module SalesRate =
             None
 ```
 
----
-
-### StockItem Model
+***
 
 ```fsharp
 type StockItem = {
@@ -350,7 +346,7 @@ module StockItem =
             None
 ```
 
----
+***
 
 ### Replenishment Calculations
 
@@ -374,12 +370,11 @@ public static class Replenishment {
 }
 ```
 
-Questions:
-
-- What can go wrong here?
-- What happens if numbers are negative?
-
----
+' Questions:
+' What can go wrong here?
+' What happens if numbers are negative?
+' Point out that DaysOfInventory should have a restricted domain
+***
 
 ### Days Of Inventory Model
 
@@ -394,7 +389,7 @@ module DaysOfInventory =
             None
 ```
 
----
+***
 
 ### Replenishment Module
 
@@ -407,7 +402,7 @@ module Replenishment =
         quantity doiTarget stockItem.SalesRate  
 ```
 
----
+***
 
 ### Replenishment Module
 
@@ -422,7 +417,7 @@ module Replenishment =
 
 What do we do if we just want to support the multiplication of `DaysOfInventory` and `SalesRate`?
 
----
+***
 
 ### Adding Operations to DaysOfInventory Model
 
@@ -442,16 +437,17 @@ module Replenishment =
 // val purchaseQuantity : DaysOfInventory -> StockItem -> OrderQuantity
 ```
 
----
+***
 
 ### Updated Requirement
 
-> "We want to adjust the DOI Target for our StockItems based on their Profit Category. Cat 1 should get a 10 DOI Bonus. Cat 2 should get no bonus. Cat 3 should get a 15 DOI Penalty." --The Boss
- 
+> "We want to adjust the DOI Target for our StockItems based on their Profit Category. Cat 1 should get a 10 DOI Bonus. Cat 2 should get no bonus. Cat 3 should get a 15 DOI Penalty."
+>> The Boss
+
 New Term for the Ubiquitous Language  
 **Profit Category:** The profit grouping that a Stock Item belongs to
 
----
+***
 
 ### Profit Category Model
 
@@ -470,7 +466,7 @@ type StockItem = {
 
 ```
 
----
+***
 
 ### Replenishment Module : Take 2
 
@@ -492,7 +488,7 @@ Question
 - How do we avoid doing this? (Don't work with base types. Work with domain types as much as possible.)
 - How do we fix it?
 
----
+***
 
 ### Updated Days Of Inventory Model
 
@@ -512,7 +508,7 @@ type DaysOfInventory = DaysOfInventory of float with
         ItemQuantity (d * s)
 ```
 
----
+***
 
 ### Replenishment Module : Take 3
 
@@ -537,7 +533,7 @@ module Replenishment =
         | None -> ItemQuantity 0.0
 ```
 
----
+***
 
 ### A Critique
 
@@ -549,7 +545,7 @@ The `DaysOfInventory` type is now a pain to use whenever we need to subtract (wh
 
 Yes, this is annoying but it is also forcing us to deal with a very real possibility. Let's see if there is anything we can do about that...
 
----
+***
 
 ### The Problem Statements
 
@@ -559,7 +555,7 @@ When we need to combine multiple instances of `DaysOfInventory` using operators 
 
 #### Option 2: Create a new function
 
----
+***
 
 ### DDD Takeaways
 
@@ -571,7 +567,7 @@ When we need to combine multiple instances of `DaysOfInventory` using operators 
 - DDD is likely not a good solution for situations where performance is more important than maintainability
 - Sometimes DDD can feel cumbersome but the return on reliability and maintainability may be worth it
 
----
+***
 
 ## Resources
 
@@ -584,10 +580,10 @@ When we need to combine multiple instances of `DaysOfInventory` using operators 
 ### Websites
 
 fsharpforfunandprofit.com by Scott Wlaschin  
-fsharp.org
+fsharp.org  
 sergeytihon.com by Sergey Tihon
 
----
+***
 
 ## Citations
 
